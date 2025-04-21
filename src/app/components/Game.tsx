@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Puzzle from './Puzzle';
 import { gameData } from '../data/gameData';
 

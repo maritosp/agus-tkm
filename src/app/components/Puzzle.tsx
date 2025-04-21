@@ -18,25 +18,31 @@ export default function Puzzle({ level, imageCount, onComplete }: PuzzleProps) {
   // Initialize pieces in order
   useEffect(() => {
     setIsClient(true);
-    setPieces(Array.from({ length: imageCount }, (_, i) => i));
+    const initialPieces = Array.from({ length: imageCount }, (_, i) => i);
+    setPieces(initialPieces);
   }, [imageCount]);
 
   // Shuffle pieces only after initial render and when level changes
   useEffect(() => {
-    if (isClient && pieces.length > 0) {
-      const shuffled = [...pieces];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      // Ensure it's not solved initially
-      if (shuffled.every((piece, index) => piece === index)) {
-        [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
-      }
-      setPieces(shuffled);
-      setIsComplete(false);
+    if (isClient) {
+      const shufflePieces = () => {
+        const shuffled = Array.from({ length: imageCount }, (_, i) => i);
+        // Use a deterministic shuffle based on level
+        const seed = level * 1000;
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = (seed + i) % (i + 1);
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        // Ensure it's not solved initially
+        if (shuffled.every((piece, index) => piece === index)) {
+          [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+        }
+        setPieces(shuffled);
+        setIsComplete(false);
+      };
+      shufflePieces();
     }
-  }, [level, isClient, pieces.length]);
+  }, [level, isClient, imageCount]);
 
   const handlePieceClick = (index: number) => {
     if (selectedPiece === null) {
